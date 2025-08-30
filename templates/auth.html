@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Login/Registrierung</title>
+  <script src="{{ url_for('static', filename='js/auth.js') }}" defer></script>
+</head>
+<body>
+  <h1>Einloggen oder Registrieren</h1>
+
+  <div id="forms">
+    <section>
+      <h2>Login</h2>
+      <form id="login-form">
+        <input name="email"     id="login-email" type="email" placeholder="E-Mail" required>
+        <input name="password"  id="login-password" type="password" placeholder="Passwort" required>
+        <button type="submit">Login</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Registrieren</h2>
+      <form id="register-form">
+        <input name="full_name" id="reg-name"  placeholder="Name" required>
+        <input name="email"     id="reg-email" type="email" placeholder="E-Mail" required>
+        <input name="password"  id="reg-password" type="password" placeholder="Passwort" required>
+        <button id="btn-reg" type="submit">Registrieren</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Registrieren als Unternehmen</h2>
+      <form id="register-company-form">
+        <input name="full_name" id="reg-company-name"  placeholder="Name" required>
+        <input name="email"     id="reg-company-email" type="email" placeholder="E-Mail" required>
+        <input name="password"  id="reg-company-password" type="password" placeholder="Passwort" required>
+        <input name="company"  id="reg-company" type="company" placeholder="Unternehmen" required>
+        <button id="btn-company-reg" type="submit">Registrieren</button>
+      </form>
+    </section>
+
+  </div>
+
+  <p><a href="{{ url_for('home') }}">Zurück zur Startseite</a></p>
+</body>
+</html>

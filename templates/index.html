@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<title>Event Plattform</title>
+<link rel="stylesheet" href="/static/css/styles.css">
+
+<body>
+  <header style="display:flex; justify-content:flex-end; padding:10px;">
+    <div id="auth-area">
+      <a href="{{ url_for('auth_page') }}" 
+        style="background:#007bff; color:white; padding:8px 12px; border-radius:5px; text-decoration:none;">
+        Anmelden
+      </a>
+    </div>
+  </header>
+
+  <div class="events-header">
+    <h1>Events</h1>
+    <button id="btn-load">Daten neu laden</button>
+  </div>
+
+  <!-- Events Filtern (auch ohne Login) -->
+  <section id="search">
+    <h3>Events Filtern</h3>
+    <input id="q" placeholder="Suche (Titel/Beschreibung)">
+    <input id="location" placeholder="Ort">
+    <input id="from" placeholder="von (YYYY-MM-DD)">
+    <input id="to"   placeholder="bis (YYYY-MM-DD)">
+    <input id="minp" type="number" placeholder="Min-Preis (ct)">
+    <input id="maxp" type="number" placeholder="Max-Preis (ct)">
+    <select id="cat"><option value="">Alle Kategorien</option></select>
+    <button id="btn-filter">Filtern</button>
+  </section>
+
+  <section>
+    <ul id="list"></ul>
+  </section>
+
+  <!-- Neues Event (nur für Organizer sichtbar) -->
+  <section id="sec-new-event" style="display:none;">
+    <h2>Neues Event erstellen</h2>
+    <form id="f">
+      <input name="title" placeholder="Titel" required>
+      <input name="location" placeholder="Ort">
+      <input name="start_date" placeholder="YYYY-MM-DD HH:MM:SS" required>
+      <input name="end_date"   placeholder="YYYY-MM-DD HH:MM:SS" required>
+      <input name="organizer_id" type="number" value="1" required>
+      <input name="price_in_cents" type="number" value="0">
+      <input name="capacity" type="number" value="50">
+      <button id="btn-save">Speichern</button>
+    </form>
+    <p id="msg"></p>
+  </section>
+
+  <!-- Meine Buchungen (nur für normale User) -->
+  {% if me and not me.is_organizer %}
+  <section id="sec-mybookings">
+    <h2>Meine Buchungen</h2>
+    <ul id="mybookings"></ul>
+  </section>
+  {% endif %}
+
+  <script src="/static/js/common.js"></script>
+  <script src="/static/js/events.js"></script>
+  <script src="/static/js/auth.js"></script>
+
+  <script>
+    initAuthUI();
+  </script>
+
+  <script>
+  (async () => {
+    try {
+      const res = await fetch("/api/me");
+      const me  = res.ok ? await res.json() : null;
+
+      const secMy  = document.getElementById("sec-mybookings");
+      const secNew = document.getElementById("sec-new-event");
+      const hint   = document.getElementById("mybk-hint");
+
+      // falls nicht eingeloggt
+      if (!me) {
+        if (secMy)  secMy.style.display  = "none";
+        if (secNew) secNew.style.display = "none";
+        if (hint)   hint.style.display   = "";
+        return;
+      }
+
+      if (secMy)  secMy.style.display  = me.is_organizer ? "none" : "";
+      if (secNew) secNew.style.display = me.is_organizer ? "" : "none";
+      if (hint)   hint.style.display   = "none";
+    } catch {}
+  })();
+</script>
+
+</body>
+</html>

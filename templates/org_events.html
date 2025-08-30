@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Meine Events</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;">
+  <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;">
+    <a href="{{ url_for('home') }}" style="text-decoration:none">&larr; Zurück</a>
+    <h1 style="margin:0;font-size:22px;">Meine Events</h1>
+    <span></span>
+  </header>
+
+  <main style="max-width:900px;margin:0 auto;padding:16px;">
+    <ul id="evlist" style="list-style:none;padding:0;margin:0;display:grid;gap:12px;"></ul>
+  </main>
+
+  <script>
+    async function fetchJSON(url, options={}) {
+      const r = await fetch(url, options);
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+
+    async function loadMyEvents() {
+      const data = await fetchJSON("/api/organizer/events");
+      const ul = document.getElementById("evlist");
+      ul.innerHTML = data.map(e => `
+        <li style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:600">${e.title}</div>
+            <div style="color:#6b7280">${e.start_date} — ${e.location||""}</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <a href="/organizer/event/${e.id}/edit"
+               style="background:#007bff;color:#fff;padding:8px 12px;border-radius:6px;text-decoration:none;">Bearbeiten</a>
+            <button data-id="${e.id}"
+               style="background:#ef4444;color:#fff;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;">Löschen</button>
+          </div>
+        </li>
+      `).join("");
+    }
+
+    document.getElementById("evlist").addEventListener("click", async (ev) => {
+      const btn = ev.target.closest("button[data-id]");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      if (!confirm("Event wirklich löschen?")) return;
+      try {
+        await fetch("/api/event/" + id, { method: "DELETE" });
+        loadMyEvents();
+      } catch (e) { alert("Löschen fehlgeschlagen: " + e.message); }
+    });
+
+    loadMyEvents();
+  </script>
+</body>
+</html>

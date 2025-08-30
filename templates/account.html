@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<title>Konto verwalten</title>
+<link rel="stylesheet" href="/static/css/styles.css">
+<body>
+
+<header style="display:flex;justify-content:space-between;align-items:center;padding:10px;">
+  <button id="btn-back" onclick="location.href='/'">Zurück</button>
+  <div id="auth-area"></div>
+</header>
+
+<main style="max-width:680px;margin:24px auto;padding:16px;background:#fff;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.06);">
+  <h1>Konto verwalten</h1>
+
+  <form id="account-form">
+    <label>Voller Name<br>
+      <input id="acc-fullname" name="full_name" required>
+    </label>
+    <br><br>
+
+    <label>E-Mail<br>
+      <input id="acc-email" name="email" type="email" required>
+    </label>
+    <br><br>
+
+    <label>Neues Passwort (optional)<br>
+      <input id="acc-password" name="password" type="password" placeholder="leer lassen = unverändert">
+    </label>
+    <br><br>
+
+    <div id="acc-org-wrap" style="display:none">
+      <label>Unternehmen (nur Organizer)<br>
+        <input id="acc-company" name="company" placeholder="Firmenname">
+      </label>
+      <br><br>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button id="acc-save" type="submit"
+              style="background:#007bff; color:white; padding:8px 12px; border-radius:5px; border:none; cursor:pointer;">
+        Speichern
+      </button>
+    </div>
+  </form>
+
+  <p id="acc-msg" style="margin-top:12px;color:#444"></p>
+</main>
+
+<script src="/static/js/common.js" defer></script>
+<script src="/static/js/auth.js"   defer></script>
+<script src="/static/js/account.js" defer></script>
+<script>initAuthUI && initAuthUI();</script>
+</body>
+</html>

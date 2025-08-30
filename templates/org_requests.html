@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Buchungsanfragen</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;">
+  <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;">
+    <a href="{{ url_for('organizer_events_page') }}" style="text-decoration:none">&larr; Zurück</a>
+    <h1 style="margin:0;font-size:22px;">Buchungsanfragen</h1>
+    <span id="msg" style="color:#666;"></span>
+  </header>
+
+  <main style="max-width:900px;margin:0 auto;padding:16px;">
+    <ul id="req-list" style="list-style:none;padding:0;display:grid;gap:12px;"></ul>
+  </main>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+    async function fetchJSON(url, opts={}) {
+      const r = await fetch(url, {headers:{'Content-Type':'application/json'}, ...opts});
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+    function btnBlue(){ return "background:#007bff;color:#fff;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;text-decoration:none"; }
+    function btnRed(){  return "background:#ef4444;color:#fff;padding:8px 12px;border:none;border-radius:6px;cursor:pointer"; }
+
+    async function loadRequests() {
+      try {
+        const rows = await fetchJSON("/api/organizer/bookings?status=pending");
+        const ul = $("#req-list");
+        ul.innerHTML = rows.map(r => `
+          <li style="padding:12px;border:1px solid #e5e7eb;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-weight:600">${r.event_title}</div>
+              <div style="color:#6b7280">von ${r.user_name} (${r.user_email}) — Menge: ${r.qty}</div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="approve" data-id="${r.booking_id}" style="${btnBlue()}">Annehmen</button>
+              <button class="reject"  data-id="${r.booking_id}" style="${btnRed()}">Ablehnen</button>
+            </div>
+          </li>
+        `).join("") || "<li>Keine offenen Anfragen.</li>";
+      } catch(e) {
+        $("#msg").textContent = "Fehler: " + e.message;
+      }
+    }
+
+    // Event-Delegation für Approve/Reject
+    document.addEventListener("click", async (ev) => {
+      const b = ev.target.closest("button");
+      if (!b) return;
+      const id = b.dataset.id;
+      if (b.classList.contains("approve")) {
+        try {
+          await fetchJSON(`/api/organizer/booking/${id}/approve`, {method:"POST"});
+          $("#msg").textContent = "Anfrage angenommen.";
+          await loadRequests();
+        } catch (e) { $("#msg").textContent = "Fehler: " + e.message; }
+      }
+      if (b.classList.contains("reject")) {
+        try {
+          await fetchJSON(`/api/organizer/booking/${id}/reject`, {method:"POST"});
+          $("#msg").textContent = "Anfrage abgelehnt.";
+          await loadRequests();
+        } catch (e) { $("#msg").textContent = "Fehler: " + e.message; }
+      }
+    });
+
+    loadRequests();
+  </script>
+</body>
+</html>

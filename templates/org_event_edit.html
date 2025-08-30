@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Event bearbeiten</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+<body style="font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;">
+  <header style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;">
+    <a href="{{ url_for('organizer_events_page') }}" style="text-decoration:none">&larr; Zurück</a>
+    <h1 style="margin:0;font-size:22px;">Event bearbeiten</h1>
+    <span></span>
+  </header>
+
+  <main style="max-width:900px;margin:0 auto;padding:16px;">
+    <form id="f" style="display:grid;gap:12px;">
+      <label>Titel
+        <input name="title" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px" required>
+      </label>
+
+      <label>Ort
+        <input name="location" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+      </label>
+
+      <label>Start
+        <input type="datetime-local" name="start_date"
+               style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px" required>
+      </label>
+
+      <label>Ende
+        <input type="datetime-local" name="end_date"
+               style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px" required>
+      </label>
+
+      <label>Preis (ct)
+        <input name="price_in_cents" type="number" min="0"
+               style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+      </label>
+
+      <label>Kapazität
+        <input name="capacity" type="number" min="0"
+               style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px">
+      </label>
+
+      <label>Beschreibung
+        <textarea name="description" rows="4"
+          style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px"></textarea>
+      </label>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button type="submit"
+          style="background:#007bff;color:#fff;padding:10px 14px;border:none;border-radius:8px;cursor:pointer;">
+          Speichern
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <script>
+    const EID = {{ eid|int }};
+
+    async function fetchJSON(url, options={}) {
+      const r = await fetch(url, options);
+      if (!r.ok) throw new Error(await r.text());
+      return r.json();
+    }
+
+    // Server-String -> value für <input type="datetime-local">
+    // z.B. "Wed, 01 Jan 2025 10:00:00 GMT"  -> "2025-01-01T10:00"
+    function toInputLocal(v) {
+      if (!v) return "";
+      const d = new Date(v);
+      if (isNaN(d)) return "";
+      const pad = n => String(n).padStart(2, "0");
+      const yyyy = d.getFullYear();
+      const mm   = pad(d.getMonth() + 1);
+      const dd   = pad(d.getDate());
+      const hh   = pad(d.getHours());
+      const mi   = pad(d.getMinutes());
+      return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+    }
+
+    // value aus <input type="datetime-local"> -> MySQL DATETIME
+    // "2025-01-01T10:00" -> "2025-01-01 10:00:00"
+    function toMySQLDateTime(v) {
+      if (!v) return null;
+      return v.replace("T", " ") + (v.length === 16 ? ":00" : "");
+    }
+
+    async function loadEvent() {
+      const e = await fetchJSON("/api/organizer/event/" + EID);
+      for (const [k, v] of Object.entries(e)) {
+        const el = document.querySelector(`[name="${k}"]`);
+        if (!el) continue;
+        if (k === "start_date" || k === "end_date") {
+          el.value = toInputLocal(v);
+        } else {
+          el.value = v ?? "";
+        }
+      }
+    }
+
+    document.getElementById("f").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const fd = new FormData(ev.target);
+      const body = Object.fromEntries(fd.entries());
+
+      // Zahlenfelder sauber parsen
+      if (body.price_in_cents !== "") body.price_in_cents = +body.price_in_cents;
+      if (body.capacity !== "")       body.capacity       = +body.capacity;
+
+      // Datumsfelder ins MySQL-Format bringen
+      body.start_date = toMySQLDateTime(body.start_date);
+      body.end_date   = toMySQLDateTime(body.end_date);
+
+      try {
+        await fetchJSON("/api/event/" + EID, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        alert("Gespeichert ✔");
+        location.href = "/organizer/events";
+      } catch (e) {
+        alert("Speichern fehlgeschlagen: " + e.message);
+      }
+    });
+
+    loadEvent();
+  </script>
+</body>
+</html>

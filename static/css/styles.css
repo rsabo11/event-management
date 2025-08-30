@@ -1,0 +1,105 @@
+body { font-family: system-ui, Arial; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+header { display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem; }
+section { margin: 1.2rem 0; }
+input { padding: .5rem .7rem; margin:.2rem; }
+
+button {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: .3rem;
+  padding: .4rem .8rem;
+  font-size: .9rem;
+  cursor: pointer;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+li {
+  background: #f9f9f9;
+  margin-bottom: .6rem;
+  padding: .7rem 1rem;
+  border-radius: .4rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.events-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.events-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.events-header button {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: .3rem;
+  padding: .4rem .9rem;
+  font-size: .95rem;
+  cursor: pointer;
+}
+
+#list li {
+  background: #f9f9f9;
+  margin-bottom: .6rem;
+  padding: .7rem 1rem;
+  border-radius: .4rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+#list button {
+  appearance: none;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+  border-radius: .45rem;
+  padding: .35rem .7rem;
+  font: inherit;
+  line-height: 1;
+  vertical-align: middle;
+  margin-left: .6rem;
+  cursor: pointer;
+}
+
+#list button:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+#list button.book {
+  background: #16a34a;
+  border-color: #12893e;
+  color: #fff;
+}
+
+#list button.unbook {
+  background: #ef4444;
+  border-color: #dc2626;
+  color: #fff;
+}
+
+#list button.soldout {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+#list button.need-login {
+  background: #fff;
+  border-color: #d1d5db;
+  color: #374151;
+}
+
+.review { margin-top: 6px; }
+
+.review form { display:inline-flex; gap:8px; align-items:center; }
